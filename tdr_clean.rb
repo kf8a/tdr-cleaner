@@ -38,18 +38,16 @@ if __FILE__==$0
 
   locations = TDR['select * from weather.glbrc_tdr_locations']
   locations.each do |location|
-    data = TDR[%q{select plot, depth, glbrc_tdr_data.datetime, topvwc from weather.glbrc_tdr_data join weather.glbrc_tdr_locations on glbrc_tdr_data.location_id = glbrc_tdr_locations.id where plot not in ('BT','GT','FT') and glbrc_tdr_locations.id = ? and topvwc < 0.5 and topvwc > 0.05 order by datetime}, location[:id]].all
+    data = TDR[%q{select plot, depth, glbrc_tdr_data.datetime, topvwc from weather.glbrc_tdr_data join weather.glbrc_tdr_locations on glbrc_tdr_data.location_id = glbrc_tdr_locations.id where glbrc_tdr_locations.id = ? and topvwc < 0.5 and topvwc > 0.05 order by datetime}, location[:id]].all
 
     CSV.open('data.csv', 'w') do |f|
       data.each do |datum|
         f << [datum[:plot], datum[:depth], datum[:datetime], datum[:topvwc]]
       end
     end
-    # system("cp data.csv #{location[:plot]}-#{location[:depth]}.csv")
 
     system('rm -f filtered.csv')
     system('Rscript fft-filter.r > /dev/null')
-#    system "cp filtered.csv #{location[:plot]}-#{location[:depth]}-filtered.csv"
 
     data = []
     CSV.foreach('filtered.csv','r') do | row |
