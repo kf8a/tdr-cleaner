@@ -26,7 +26,7 @@ if __FILE__==$0
   credentials = File.open(File.join(Dir.home(user),'credentials.yaml')) {|y| YAML::load(y)}
 
   TDR = Sequel.postgres(:database       => 'metadata',
-                        :host           => 'thetford.kbs.msu.edu',
+                        :host           => 'granby.kbs.msu.edu',
                         # :logger         => [Logger.new($stdout)],
                         :user           => credentials['username'],
                         :password       => credentials['password'])
