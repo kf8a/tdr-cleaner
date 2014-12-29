@@ -36,7 +36,8 @@ if __FILE__==$0
   # delete the old data
   #TDR['delete from glbrc.cleaned_daily_tdr_values'] 
 
-  locations = TDR['select * from weather.glbrc_tdr_locations']
+  #locations = TDR["select * from weather.glbrc_tdr_locations where plot in ('BT','GT','FT')"]
+  locations = TDR["select * from weather.glbrc_tdr_locations"]
   locations.each do |location|
     data = TDR[%q{select plot, depth, glbrc_tdr_data.datetime, topvwc from weather.glbrc_tdr_data join weather.glbrc_tdr_locations on glbrc_tdr_data.location_id = glbrc_tdr_locations.id where glbrc_tdr_locations.id = ? and topvwc < 0.5 and topvwc > 0.05 order by datetime}, location[:id]].all
 
@@ -53,15 +54,15 @@ if __FILE__==$0
     CSV.foreach('filtered.csv','r') do | row |
       plot, depth, date, vwc = row
       next if plot == 'plot'
-      data << {:plot => plot, :depth => depth, :datetime => Date.strptime(date,'%Y-%m-%d'), :vwc => vwc.to_f}
+      data << {:plot => plot, :depth => depth, :date => Date.strptime(date,'%Y-%m-%d'), :vwc => vwc.to_f}
     end
 
     clean_daily = CleanOutliers.process(data, 0.03)
     filled = GapFill.process(clean_daily)
-    #with_rain = AddRain.process(filled)
+    with_rain = AddRain.process(filled)
 
     CSV do |stdout|
-      filled.each do |day|
+      with_rain.each do |day|
         # CLEANED.insert(:plot => day[:plot], :depth => day[:depth],
         #                :date => day[:date], :vwc => day[:vwc])
         stdout << [day[:plot], day[:depth], day[:date], day[:vwc], day[:flag], day[:rain] ]
