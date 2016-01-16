@@ -15,7 +15,7 @@ class GapFill
 					if gap_rain	> 0 && datum[:date] - 3 > data[i-1][:date]
 						fill_empty(result, data[i-1][:date], datum[:date], datum)
 					else
-						fills = fill(data[i-1], datum)
+						fills = fill_by_linear_interpolation(data[i-1], datum)
 						fills.each do |fill|
 							result << fill
 						end
@@ -41,7 +41,7 @@ class GapFill
       rain[:sum]
     end
 
-    def fill(from, to)
+    def fill_by_linear_interpolation(from, to)
       slope = (from[:vwc] - to[:vwc])/(from[:date].to_time.to_i - to[:date].to_time.to_i)
       b = from[:vwc] - slope * from[:date].to_time.to_i
 
@@ -51,6 +51,14 @@ class GapFill
           :depth => from[:depth],
           :vwc => slope * d + b, :flag => 'E'}
       end
+    end
+
+    def fill_by_correlation(from, to)
+      # go back a day or two
+      # check if there is no gap in other series
+      # linear fit between the current data and the data in the other series
+      # select fit with the best r2
+      # compute missing data based on the fit
     end
 
   end
