@@ -12,4 +12,4 @@ data$date <- as.Date(format(data$datetime, '%Y-%m-%d'))
 filtered <- ddply(data, .(plot, depth), transform, filtered=filter(vwc))
 reduced <- ddply(filtered, .(plot, depth, date), summarize, daily=daily(filtered))
 
-write.csv(reduced[complete.cases(reduced),],'filtered.csv', row.names=FALSE, col.names=FALSE)
+write.csv(reduced[complete.cases(reduced),],'filtered.csv', row.names=FALSE) #, col.names=FALSE)
